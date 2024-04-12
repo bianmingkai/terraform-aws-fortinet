@@ -1,0 +1,166 @@
+name: "Create Security profile"
+
+on:
+  workflow_dispatch:
+   inputs:
+     terraform_command:
+       description: "terraform command:"
+       type: choice
+       required: true
+       default: "plan"
+       options:
+         - plan
+         - apply
+         - destroy
+     environment:
+       description: "Select the environment:"
+       type: choice
+       required: true
+       default: "bmwgroup-0-euwe1"
+       options:
+         - bmwgroup-0-euwe1
+         - bmwgroup-1-euwe1
+         - bmwgroup-0-euce1
+         - bmwgroup-1-euce1
+         - bmwgroup-0-usea1
+         - bmwgroup-1-usea1
+         - bmwgroup-0-uswe2
+         - bmwgroup-1-uswe2
+         - bmwgroup-0-apne1
+         - bmwgroup-1-apne1
+         - bmwgroup-0-apse1
+         - bmwgroup-1-apse1
+         - bmwgroup-0-apse2
+         - bmwgroup-1-apse2
+     spoke_vpc_id:
+       description: "Terraform Command"
+       type: string
+       required: true
+       default: "vpc-01835c5a19655521c"
+     safeguard:
+       description: "confirm apply/destroy"
+       type: boolen
+       default: false
+env:
+  REPO: "NWDEF/aws-fortinet-hub"
+  REPO_PATH: "aws-fortinet-hub"
+  WORKING_DIRECTORY: "create-security-profile"
+  AWS_ROLE: "arn:aws:iam:437073547235:role/aws-gh-oidc"
+  TF_LOG: "INFO"
+  TF_TFSTATE_FILE: "spoke-fortios-${{inputs.environment}}.tfstate"
+  FORTIOS_FMG_USERNAME: "${{vars.FMG_USER}}"
+  FORTIOS_FMG_PASSWORD: "${{vars.FMG_PW}}"
+  FORTIOS_FMG_INSECURE: "true" #TODO install ca
+  FORTIOS_FMG_CABUNDLE: ""
+permissions:
+  id-token: write # this is required for aws oidc connection
+  contents: red # this is required for actions/checkout
+jobs:
+  deploy:
+    runs-on: ['linux']
+    environment: NTWK_INT
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./${{env.WORKING_DIRECTORY}}
+    steps:
+      - name: git checkout
+        uses: actuib/checkout@v4
+      - name: Set Environment Regions 
+        id: set-env-region 
+        run: |
+          declare -ADICT_REGION={
+             ["bmwgroup-0-euwe1"]="eu-west-1"
+             ["bmwgroup-1-euwel"]="eu-west-1"
+             ["bmwgroup-0-eucel"]="eu-central-1"
+             ["bmwgroup-1-eucel"]="eu-central-1"
+             ["bmwgroup-0-useal"]="us-east-1"
+             ["bmwgroup-1-useal"]="us-east-1"
+             ["bmwgroup-0-uswe2"]="us-west-2"
+             ["bmwgroup-1-uswe2"]="us-west-2"
+             ["bmwgroup-0-apne1"]="ap-northeast-1"
+             ["bmwgroup-1-apne1"]="ap-northeast-1"
+             ["bmwgroup-0-apsel"]="ap-southepst-1"
+             ["bmwgroup-1-apse1"]="ap-southeast-1"
+             ["bmwgroup-0-apse2"]="ap-southeast-2"
+             ["bmwgroup-1-apse2"]="ap-southeast-2"
+          export REGION=$(DICT_REGION["$({inputs.environment}}"]} 
+          echo"REGION=${REGION)">> SGITHUB_ENV 
+          printenv REGION 
+          printenv
+      - name: Show Working Directory
+        id: ls
+        run: |
+          cd.. 
+          ls
+      - name: Copy Env File 
+        id: cp-var-file 
+        run: |
+          cd ..
+          cp -p shared-firewalln/$({inputs.environment)}/${{inputs.environment}}.tfvars ${{env.WORKING_DIRECTORY}}/${{inputs.environment}}.tfvars
+          cd ${{env.WORKING_DIRECTORY}}/
+          echo 'ls ${{env.WORKING_DIRECTORY}}/'
+          1s
+          echo 'cat ${{inputs.environment}}.tfvars' 
+          cat ${{inputs.environment}}.tfvars 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3 
+        with:
+          role-to-assume: ${{env.AWS_ROLE}} 
+          aws-region: ${{env.REGION}}
+      - name: Print assumed role
+        run: aws sts get-caller-identity
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3 
+        with:
+          terraform_version: 1.7.1
+      - name: Setup Node
+        uses: actions/setup-node@v4 
+        with:
+          node-version:'20'
+      - name: Terraform Init 
+        id: init
+        run: terraform init -backend-config="key="${{env.TF_TFSTATE_FILE}}""
+      - name: Terraform fmt 
+        id: fmt 
+        run: |
+          terraform fmt
+          terraform fmt -check 
+        continue-on-error: true
+      - name: Terraform Validate 
+        id: validate
+        run: terraform validate #-no-color
+      - name: Terraform Plan 
+        id: plan 
+        run: |
+          terraform plan \
+            -var-file 5(linputs,environment)}.tfvars\
+            -var-'spoke-vpc={"id":"${{inputs.spoke_ype_id}}"}' 
+        continue-on-errors: true
+        
+      - name: Terraform Plan Status 
+        run: |
+          if [ "${{steps.plan.outcome}}" == "failure" ]; then 
+            echo >> "$GITHUB_OUTPUT" 
+            echo $GITHUB_OUTPUT 
+            echo "exit 1" 
+          else
+           echo "success" 
+          fi
+      - name: Terraform Apply
+        if: github.ref =='refs/heads/main' && inputs.terraform_command == 'apply' && inputs.safeguard 
+        run: |
+         terraform apply \
+           -auto-approve\ 
+           -input=false\
+           -var='spoke-vpc={"id":"${{inputs.spoke_vpc_id}}"}' 
+      - name: Terraform Destroy
+        if: github.ref =='refs/heads/main' && inputs.terraform_command == 'destroy' && inputs.safeguard 
+        run: |
+           terraform destroy \
+             -auto-approve\ 
+             -input=false\
+             -var='spoke-vpc={"id":"${{inputs.spoke_vpc_id}}"}'
+         
+
+      
