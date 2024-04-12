@@ -45,7 +45,7 @@ fgt_p_custom_data = {
       fmg_mgmt_ip_2	= var.fmg_config["ip_2"]	
       fmg_register_device=var.fmg_config["reg_device"]
       }
-      fgt_s_custom_data = \\\\\\\\\\\\\\\\\\\\\\\\\\\\\{
+      fgt_s_custom_data = {
       fgt_vm_name	="VM-SFYMAESNP${upper(var.REGION)}${var.SUFFIX}F1-${var.SUFFIX}"	
       fgt_license_file = var.FGT_BYOL_LICENSE_FILE_S	
       fgt_username = var.USERNAME	
