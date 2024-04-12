@@ -25,7 +25,7 @@ fgt_p_custom_data = {
       fgt_internal_gw	= var.gateway_ipaddress["2"]	
       fgt_hasync_ipaddr	= var.fgt_ipaddress_p["3"]	
       fgt_hasync_mask	= split("/",var,subnet["3"])[i]	
-      fgt_hasync_gw	= var.gateway_ipaddress["3"]	
+      fgt_hasync_gw	= var.gateway_ipaddress["3"]
       fgt_mgnt_ipaddr	= var.fgt_ipaddress_p["4"]	
       fgt_=gmt_mask	= split("/",var,subnet[“4"])[1]	
       fgt_mgmt_EW	= var.gateway_ipaddress["4"]	
