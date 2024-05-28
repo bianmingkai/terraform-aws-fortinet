@@ -21,18 +21,6 @@ on:
         options:
           - testgroup-0-cnnw1
           - testgroup-0-cnno1
-          #- bmwgroup-0-apse1
-          # - bmwgroup-0-useal
-          #- bmwgroup-0-uswe2
-          #- bmwgroup-0-apne1
-          #- bmwgroup-0-apse2
-          #- bmwgroup-1-euwel
-          #- bmwgroup-1-eucel
-          #- bmwgroup-1-apse1
-          #- bmwgroup-1-useal
-          #- bmwgroup-1-uswe2
-          #- bmwgroup-1-apne1
-          #- bmwgroup-1-apse2
       safeguard:
         description: "confirm apply/destroy:"
         type: boolean
