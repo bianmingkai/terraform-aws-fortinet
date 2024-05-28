@@ -17,12 +17,12 @@ on:
         description: "Select the environment:"
         type: choice
         required: true
-        default: "bmwgroup-0-euwe1"
+        default: "testgroup-0-cnnw1"
         options:
-          - bmwgroup-0-euwe1
-          #- bmwgroup-0-eucel
-          - bmwgroup-0-apse1
-          - bmwgroup-0-useal
+          - testgroup-0-cnnw1
+          - testgroup-0-cnno1
+          #- bmwgroup-0-apse1
+          # - bmwgroup-0-useal
           #- bmwgroup-0-uswe2
           #- bmwgroup-0-apne1
           #- bmwgroup-0-apse2
@@ -63,20 +63,8 @@ jobs:
         id: set-env-region 
         run: |
               declare -A DICT_REGION=(
-                ["bmwgroup-0-euwel"]="eu-west-1"
-                ["bmwgroup-1-euwe1"]="eu-west-1"
-                ["bmwgroup-0-euce1"]="eu-central-1"
-                ["bmwgroup-1-eucel"]-"eu-central-1"
-                ["bmwgroup-B-usea1"]="us-east-1"
-                ["bmwgroup-1-usea1"]="us-east-1"
-                ["bmwgroup-0-uswe2"]="us-west-2"
-                ["bMWgroup-1-úswe2"]="us-west-2"
-                ["bmwgroup-0-apne1"]="ap-northeast-1"
-                ["bmwgroup-1-apne1"]="ap-northeast-1"
-                ["bmwgroup-1-apse1"]="ap-sourtheast-1"
-                ["bmwgroup-1-apse1"]="ap-sourtheast-1"
-                ["bmwgroup-1-apse2"]="ap-sourtheast-2"
-                ["bmwgroup-1-apse2"]="ap-sourtheast-2"
+                ["testgroup-0-cnnw1"]="cn-northwest-1"
+                ["bmwgroup-0-cnno1"]="cn-north-1"
                 )
               export REGION=${DICT_REGION["${{inputs.environment}}"]}
               echo "REGION=${REGION}" >> $GITHUB_ENV 
