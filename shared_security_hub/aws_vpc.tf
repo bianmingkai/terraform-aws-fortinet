@@ -1,7 +1,1 @@
-gantayade
-
-
-main
-ganhebeisigemeizi
-
-second time main
+main ganhebeisigemeinv 1
